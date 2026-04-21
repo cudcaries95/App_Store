@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="8dp"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="0dp"
+    app:cardBackgroundColor="@color/colorSurface">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="12dp">
+
+        <ImageView
+            android:id="@+id/imgCartProduct"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_alignParentStart="true"
+            android:scaleType="centerCrop"
+            android:background="#F5F7FA"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_toEndOf="@id/imgCartProduct"
+            android:layout_toStartOf="@+id/btnDeleteCart"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:layout_centerVertical="true">
+
+            <TextView
+                android:id="@+id/tvCartName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Tên sản phẩm"
+                android:textColor="@color/colorTextPrimary"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:maxLines="2"/>
+
+            <TextView
+                android:id="@+id/tvCartPrice"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Giá tiền"
+                android:textColor="@color/colorPrimary"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:layout_marginTop="4dp"/>
+
+            <TextView
+                android:id="@+id/tvCartQuantity"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Số lượng: 1"
+                android:textColor="@color/colorTextSecondary"
+                android:textSize="14sp"
+                android:layout_marginTop="4dp"/>
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/btnDeleteCart"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:src="@drawable/ic_delete"
+            android:padding="4dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:clickable="true"
+            app:tint="#E53935" />
+    </RelativeLayout>
+</androidx.cardview.widget.CardView>

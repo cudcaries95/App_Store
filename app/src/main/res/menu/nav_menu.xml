@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/nav_home"
+        android:title="Trang chủ"
+        android:icon="@drawable/ic_home" />
+
+    <item
+        android:id="@+id/nav_profile"
+        android:title="Hồ sơ cá nhân"
+        android:icon="@drawable/ic_person" />
+
+    <item
+        android:id="@+id/nav_cart"
+        android:title="Giỏ hàng của tôi"
+        android:icon="@drawable/ic_cart" />
+
+    <item
+        android:id="@+id/nav_history"
+        android:title="Lịch sử đơn hàng"
+        android:icon="@drawable/ic_history" />
+
+    <item
+        android:id="@+id/nav_favorite"
+        android:title="Sản phẩm yêu thích"
+        android:icon="@drawable/ic_heart_filled" />
+
+    <item
+        android:id="@+id/nav_admin_statistics"
+        android:title="[Admin] Báo cáo Thống kê"
+        android:icon="@drawable/ic_menu"
+        android:visible="false" />
+
+    <item
+        android:id="@+id/nav_admin_products"
+        android:title="[Admin] Quản lý Sản phẩm"
+        android:icon="@drawable/ic_menu"
+        android:visible="false" />
+
+    <item
+        android:id="@+id/nav_admin_orders"
+        android:title="[Admin] Quản lý Đơn hàng"
+        android:icon="@drawable/ic_menu"
+        android:visible="false" />
+
+    <item
+        android:id="@+id/nav_logout"
+        android:title="Đăng xuất" />
+</menu>

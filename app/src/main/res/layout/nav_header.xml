@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="176dp"
+    android:background="#2E7D32"
+    android:gravity="bottom"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <ImageView
+        android:id="@+id/imgNavAvatar"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:background="@android:color/transparent"
+        android:src="@drawable/ic_person" />
+
+    <TextView
+    android:id="@+id/tvNavName"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingTop="8dp"
+    android:text="Tên khách hàng"
+    android:textColor="#FFFFFF"
+    android:textSize="18sp"
+    android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/tvNavRank"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:background="#33000000"
+        android:paddingStart="8dp"
+        android:paddingEnd="8dp"
+        android:paddingTop="2dp"
+        android:paddingBottom="2dp"
+        android:text="Thành viên"
+        android:textColor="#E0E0E0"
+        android:textSize="14sp"
+        android:textStyle="bold" />
+
+</LinearLayout>
