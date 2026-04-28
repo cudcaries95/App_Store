@@ -60,7 +60,6 @@ public class ManageOrdersActivity extends AppCompatActivity {
     }
 
     private void loadAllOrders() {
-        // Kéo toàn bộ đơn hàng về, đơn mới nhất xếp lên đầu
         db.collection("Orders")
                 .orderBy("orderDate", Query.Direction.DESCENDING)
                 .addSnapshotListener((value, error) -> {
@@ -68,28 +67,20 @@ public class ManageOrdersActivity extends AppCompatActivity {
                     if (value != null) {
                         orderList.clear();
                         for (QueryDocumentSnapshot doc : value) {
-                            // 1. LẤY MÃ ĐƠN HÀNG CHUẨN (Chính là ID của dòng dữ liệu)
                             String orderId = doc.getId();
 
-                            // 2. KÉO VÀ DỊCH NGÀY THÁNG
-                            String formattedDate = "Đang cập nhật";
+                            // LẤY TRỰC TIẾP ĐỐI TƯỢNG DATE
                             Timestamp timestamp = doc.getTimestamp("orderDate");
-                            if (timestamp != null) {
-                                Date date = timestamp.toDate(); // Đổi Timestamp thành Date
-                                // Định dạng ngày giờ kiểu Việt Nam (Ngày/Tháng/Năm Giờ:Phút)
-                                SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
-                                formattedDate = sdf.format(date);
-                            }
+                            Date dateObject = (timestamp != null) ? timestamp.toDate() : new Date();
 
-                            // Kéo các trường khác bình thường...
                             String name = doc.getString("customerName");
                             String phone = doc.getString("customerPhone");
                             String address = doc.getString("deliveryAddress");
                             String total = doc.getString("totalAmount");
                             String status = doc.getString("status");
 
-                            // 3. NHÉT CÁI orderId VÀ formattedDate VÀO CONSTRUCTOR
-                            orderList.add(new Order(orderId, formattedDate, name, phone, address, total, status));
+                            // TRUYỀN dateObject VÀO (Không truyền chuỗi formattedDate nữa)
+                            orderList.add(new Order(orderId, dateObject, name, phone, address, total, status));
                         }
                         orderAdapter.notifyDataSetChanged();
                     }

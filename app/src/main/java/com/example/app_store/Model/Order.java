@@ -1,22 +1,24 @@
 package com.example.app_store.Model;
 
+import java.util.Date;
+
 public class Order {
     private String orderId;
     private String totalAmount;
     private String status;
-    private String orderDate;
+    private Date orderDate;
     private String customerName;
     private String customerPhone;
     private String deliveryAddress;
 
-    public Order(String orderId, String totalAmount, String status, String orderDate) {
+    public Order(String orderId, String totalAmount, String status, Date orderDate) {
         this.orderId = orderId;
         this.totalAmount = totalAmount;
         this.status = status;
         this.orderDate = orderDate;
     }
 
-    public Order(String orderId, String orderDate, String customerName, String customerPhone, String deliveryAddress, String totalAmount, String status) {
+    public Order(String orderId, Date orderDate, String customerName, String customerPhone, String deliveryAddress, String totalAmount, String status) {
         this.orderId = orderId;
         this.orderDate = orderDate;
         this.customerName = customerName;
@@ -74,11 +76,11 @@ public class Order {
         this.status = status;
     }
 
-    public String getOrderDate() {
+    public Date getOrderDate() {
         return orderDate;
     }
 
-    public void setOrderDate(String orderDate) {
+    public void setOrderDate(Date orderDate) {
         this.orderDate = orderDate;
     }
 }

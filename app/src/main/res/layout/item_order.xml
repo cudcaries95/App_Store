@@ -72,5 +72,20 @@
                 android:textSize="16sp"
                 android:textStyle="bold"/>
         </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="8dp">
+            <Button
+                android:id="@+id/btnCancelOrder"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Hủy đơn hàng"
+                android:backgroundTint="#F44336"
+                android:textColor="#FFFFFF"
+                />
+        </LinearLayout>
     </LinearLayout>
+
 </androidx.cardview.widget.CardView>

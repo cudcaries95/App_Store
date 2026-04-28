@@ -11,12 +11,15 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.app_store.Adapter.OrderAdapter;
 import com.example.app_store.Model.Order;
+import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -52,31 +55,36 @@ public class OrderHistoryActivity extends AppCompatActivity {
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-        // Truy vấn lấy danh sách đơn hàng CỦA TÀI KHOẢN NÀY
+        // Truy vấn lấy danh sách đơn hàng CỦA TÀI KHOẢN NÀY, sắp xếp mới nhất lên đầu
         db.collection("Orders")
                 .whereEqualTo("userId", currentUserId)
-                .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        orderList.clear();
-                        for (DocumentSnapshot doc : task.getResult()) {
+                .orderBy("orderDate", Query.Direction.DESCENDING) // Sắp xếp theo thời gian giảm dần
+                .addSnapshotListener((value, error) -> {
+                    // 1. Kiểm tra lỗi trước
+                    if (error != null) {
+                        android.widget.Toast.makeText(this, "Không thể tải lịch sử: " + error.getMessage(), android.widget.Toast.LENGTH_SHORT).show();
+                        return; // Thoát khỏi hàm nếu có lỗi
+                    }
+
+                    // 2. Kiểm tra xem dữ liệu có tồn tại không
+                    if (value != null) {
+                        orderList.clear(); // Xóa danh sách cũ để cập nhật danh sách mới
+
+                        for (DocumentSnapshot doc : value.getDocuments()) {
                             String orderId = doc.getId();
                             String totalAmount = doc.getString("totalAmount");
                             String status = doc.getString("status");
 
-                            // Xử lý chuyển đổi Timestamp thành ngày giờ dễ đọc
-                            String dateStr = "";
-                            com.google.firebase.Timestamp timestamp = doc.getTimestamp("orderDate");
-                            if (timestamp != null) {
-                                SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
-                                dateStr = sdf.format(timestamp.toDate());
-                            }
+                            // LẤY TRỰC TIẾP ĐỐI TƯỢNG DATE TỪ TIMESTAMP
+                            Timestamp timestamp = doc.getTimestamp("orderDate");
+                            Date dateObject = (timestamp != null) ? timestamp.toDate() : new Date();
 
-                            orderList.add(new Order(orderId, totalAmount, status, dateStr));
+                            // NHÉT TRỰC TIẾP DATE VÀO CONSTRUCTOR
+                            orderList.add(new Order(orderId, totalAmount, status, dateObject));
                         }
+
+                        // Cập nhật lại giao diện
                         orderAdapter.notifyDataSetChanged();
-                    } else {
-                        Toast.makeText(this, "Không thể tải lịch sử", Toast.LENGTH_SHORT).show();
                     }
                 });
     }

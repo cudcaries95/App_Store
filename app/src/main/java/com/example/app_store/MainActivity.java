@@ -88,6 +88,7 @@ public class MainActivity extends AppCompatActivity {
         // 1. Vừa vào là giấu tịt đi trước cho an toàn
         navMenu.findItem(R.id.nav_admin_orders).setVisible(false);
         navMenu.findItem(R.id.nav_admin_statistics).setVisible(false);
+        navMenu.findItem(R.id.nav_admin_statistics).setVisible(false);
 
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser != null) {
@@ -293,8 +294,22 @@ public class MainActivity extends AppCompatActivity {
             if (documentSnapshot != null && documentSnapshot.exists()) {
                 String name = documentSnapshot.getString("name");
                 String base64Image = documentSnapshot.getString("avatarBase64");
+                String role = documentSnapshot.getString("role");
 
-                if (name != null) tvNavName.setText(name);
+                if (role != null && role.equalsIgnoreCase("admin")) {
+                    // NẾU LÀ ADMIN: Gắn mác Quản Trị Viên (Hoặc dùng lệnh tvNavRank.setVisibility(View.GONE); để giấu tịt luôn)
+                    tvNavRank.setText("👑 QUẢN TRỊ VIÊN");
+                    tvNavRank.setTextColor(android.graphics.Color.parseColor("#FF5252")); // Màu Đỏ quyền lực
+                    tvNavRank.setVisibility(android.view.View.VISIBLE);
+                    tvNavName.setText(name);
+
+                    // Tuyệt đối không gọi lệnh đếm đơn hàng ở đây để tiết kiệm Database
+                } else {
+                    // NẾU LÀ KHÁCH HÀNG: Kích hoạt hàm đếm tiền và xét hạng VIP
+                    tvNavRank.setVisibility(android.view.View.VISIBLE);
+                    tvNavName.setText(name);
+                    calculateRankForCustomer(userId, tvNavRank);
+                }
 
                 if (base64Image != null && !base64Image.isEmpty()) {
                     // Giải mã Base64
@@ -311,9 +326,11 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+    }
 
-        // 2. KÉO ĐƠN HÀNG VÀ TÍNH HẠNG
-        db.collection("Orders")
+    // 2. KÉO ĐƠN HÀNG VÀ TÍNH HẠNG
+    private void calculateRankForCustomer(String userId, TextView tvNavRank) {
+        FirebaseFirestore.getInstance().collection("Orders")
                 .whereEqualTo("userId", userId)
                 .whereEqualTo("status", "Giao thành công")
                 .get()
@@ -327,19 +344,19 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
 
-                    // HIỂN THỊ HẠNG VÀ ĐỔI MÀU CHỮ TRÊN MENU
+                    // HIỂN THỊ HẠNG VIP CHO KHÁCH
                     if (totalSpent >= 10000000) {
                         tvNavRank.setText("💎 KIM CƯƠNG");
-                        tvNavRank.setTextColor(Color.parseColor("#64B5F6")); // Xanh sáng
+                        tvNavRank.setTextColor(android.graphics.Color.parseColor("#64B5F6"));
                     } else if (totalSpent >= 5000000) {
                         tvNavRank.setText("⭐ VÀNG VIP");
-                        tvNavRank.setTextColor(Color.parseColor("#FFD54F")); // Vàng sáng
+                        tvNavRank.setTextColor(android.graphics.Color.parseColor("#FFD54F"));
                     } else if (totalSpent >= 2000000) {
                         tvNavRank.setText("🥈 BẠC TÍN");
-                        tvNavRank.setTextColor(Color.parseColor("#E0E0E0")); // Bạc
+                        tvNavRank.setTextColor(android.graphics.Color.parseColor("#E0E0E0"));
                     } else {
                         tvNavRank.setText("🥉 THÀNH VIÊN");
-                        tvNavRank.setTextColor(Color.parseColor("#BCAAA4")); // Đồng
+                        tvNavRank.setTextColor(android.graphics.Color.parseColor("#BCAAA4"));
                     }
                 });
     }
