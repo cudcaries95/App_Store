@@ -8,6 +8,9 @@ public class CartItem {
     private String productImageUrl;
     private int quantity;
 
+    public CartItem() {
+    }
+
     public CartItem(String documentId, String productId, String productName, String productPrice, String productImageUrl, int quantity) {
         this.documentId = documentId;
         this.productId = productId;

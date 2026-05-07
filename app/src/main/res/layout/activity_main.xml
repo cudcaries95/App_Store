@@ -29,15 +29,15 @@
                 android:clickable="true"
                 app:tint="@color/colorAccent"/>
 
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
+            <SearchView
+                android:id="@+id/searchView"
+                android:layout_width="match_parent"
+                android:layout_height="32dp"
                 android:layout_weight="1"
-                android:text="Sản Phẩm"
-                android:textColor="@color/colorBackground"
-                android:textSize="20sp"
-                android:textStyle="bold"
-                android:gravity="center" />
+                android:layout_margin="16dp"
+                android:background="@drawable/bg_edittext"
+                app:iconifiedByDefault="false"
+                app:queryHint="Tìm kiếm giày sneaker..."/>
 
             <ImageView
                 android:id="@+id/btnCartIcon"
@@ -46,72 +46,87 @@
                 android:src="@drawable/ic_cart"
                 android:clickable="true"
                 app:tint="@color/colorAccent"/>
+
         </LinearLayout>
 
-        <androidx.core.widget.NestedScrollView
+        <LinearLayout
+            android:id="@+id/layoutDefaultHome"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:fillViewport="true">
+            android:orientation="vertical">
 
-            <LinearLayout
+            <androidx.core.widget.NestedScrollView
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="12dp">
+                android:layout_height="match_parent"
+                android:fillViewport="true">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="🔥 SẢN PHẨM HOT"
-                    android:textColor="@color/colorAccent"
-                    android:textSize="18sp"
-                    android:textStyle="bold"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginBottom="8dp"/>
-
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/rvHotProducts"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:clipToPadding="false"
-                    android:paddingEnd="16dp"
-                    android:layout_marginBottom="16dp"/>
+                    android:orientation="vertical"
+                    android:padding="12dp">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="⚡ ĐANG KHUYẾN MÃI"
-                    android:textColor="@color/colorPrimary"
-                    android:textSize="18sp"
-                    android:textStyle="bold"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginBottom="8dp"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="🔥 SẢN PHẨM HOT"
+                        android:textColor="@color/colorAccent"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginBottom="8dp"/>
 
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/rvSaleProducts"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:clipToPadding="false"
-                    android:paddingEnd="16dp"
-                    android:layout_marginBottom="16dp"/>
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rvHotProducts"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:clipToPadding="false"
+                        android:paddingEnd="16dp"
+                        android:layout_marginBottom="16dp"/>
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="🌟 TẤT CẢ SẢN PHẨM"
-                    android:textColor="@color/colorTextPrimary"
-                    android:textSize="18sp"
-                    android:textStyle="bold"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginBottom="8dp"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="⚡ ĐANG KHUYẾN MÃI"
+                        android:textColor="@color/colorPrimary"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginBottom="8dp"/>
 
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/recyclerViewProducts"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"/>
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rvSaleProducts"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:clipToPadding="false"
+                        android:paddingEnd="16dp"
+                        android:layout_marginBottom="16dp"/>
 
-            </LinearLayout>
-        </androidx.core.widget.NestedScrollView>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="🌟 TẤT CẢ SẢN PHẨM"
+                        android:textColor="@color/colorTextPrimary"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginBottom="8dp"/>
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/recyclerViewProducts"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"/>
+
+                </LinearLayout>
+            </androidx.core.widget.NestedScrollView>
+        </LinearLayout>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvSearchResults"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone" />
+
     </LinearLayout>
 
     <com.google.android.material.navigation.NavigationView

@@ -8,6 +8,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -35,13 +37,14 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    private RecyclerView rvHotProducts, rvSaleProducts, recyclerViewProducts;
-    private ProductAdapter hotAdapter, saleAdapter, allAdapter;
-    private List<Product> hotList, saleList, allList;
+    private RecyclerView rvHotProducts, rvSaleProducts, recyclerViewProducts, rvSearchResults;
+    private ProductAdapter hotAdapter, saleAdapter, allAdapter, searchAdapter;
+    private List<Product> hotList, saleList, allList, searchList;
     private FirebaseFirestore db; // Khai báo Firestore
     private DrawerLayout drawerLayout;
     private NavigationView navView;
     private ImageView btnMenu, btnCartIcon, imgNavAvatar;
+    private LinearLayout layoutDefaultHome;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +59,9 @@ public class MainActivity extends AppCompatActivity {
         rvHotProducts = findViewById(R.id.rvHotProducts);
         rvSaleProducts = findViewById(R.id.rvSaleProducts);
         recyclerViewProducts = findViewById(R.id.recyclerViewProducts);
+        layoutDefaultHome = findViewById(R.id.layoutDefaultHome);
+        rvSearchResults = findViewById(R.id.rvSearchResults);
+        SearchView searchView = findViewById(R.id.searchView);
 
         // 1. Khởi tạo Firestore và Auth
         db = FirebaseFirestore.getInstance();
@@ -64,8 +70,10 @@ public class MainActivity extends AppCompatActivity {
         rvHotProducts.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         rvSaleProducts.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
 
+
         // Setup chia 2 cột (Grid) cho Tất cả sản phẩm (tránh bị lỗi cuộn thì tắt cuộn độc lập)
         GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 2);
+        rvSearchResults.setLayoutManager(new GridLayoutManager(this, 2));
         recyclerViewProducts.setLayoutManager(gridLayoutManager);
         recyclerViewProducts.setNestedScrollingEnabled(false);
 
@@ -73,14 +81,17 @@ public class MainActivity extends AppCompatActivity {
         hotList = new ArrayList<>();
         saleList = new ArrayList<>();
         allList = new ArrayList<>();
+        searchList = new ArrayList<>();
 
         hotAdapter = new ProductAdapter(this, hotList);
         saleAdapter = new ProductAdapter(this, saleList);
         allAdapter = new ProductAdapter(this, allList);
+        searchAdapter = new ProductAdapter(this, searchList);
 
         rvHotProducts.setAdapter(hotAdapter);
         rvSaleProducts.setAdapter(saleAdapter);
         recyclerViewProducts.setAdapter(allAdapter);
+        rvSearchResults.setAdapter(searchAdapter);
 
         // --- ĐOẠN CODE KIỂM TRA QUYỀN ADMIN ---
         Menu navMenu = navView.getMenu(); // Lấy danh sách các nút trong Menu
@@ -226,6 +237,30 @@ public class MainActivity extends AppCompatActivity {
 
         // Gọi hàm tải dữ liệu
         loadProductsFromFirestore();
+
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                if (newText.isEmpty()) {
+                    // 1. NẾU XÓA TRẮNG THANH TÌM KIẾM -> Hiện lại trang chủ, Ẩn list tìm kiếm
+                    layoutDefaultHome.setVisibility(View.VISIBLE);
+                    rvSearchResults.setVisibility(View.GONE);
+                } else {
+                    // 2. NẾU ĐANG GÕ CHỮ -> Giấu trang chủ đi, Hiện list tìm kiếm lên
+                    layoutDefaultHome.setVisibility(View.GONE);
+                    rvSearchResults.setVisibility(View.VISIBLE);
+
+                    // Chạy thuật toán lọc (Filter) tại máy
+                    filterProducts(newText);
+                }
+                return false;
+            }
+        });
     }
 
     private void loadProductsFromFirestore() {
@@ -359,5 +394,23 @@ public class MainActivity extends AppCompatActivity {
                         tvNavRank.setTextColor(android.graphics.Color.parseColor("#BCAAA4"));
                     }
                 });
+    }
+
+    // --- HÀM LỌC SẢN PHẨM ---
+    private void filterProducts(String keyword) {
+        searchList.clear(); // Xóa kết quả cũ
+
+        // Chuyển từ khóa về chữ thường để không phân biệt hoa/thường
+        String lowerCaseKeyword = keyword.toLowerCase().trim();
+
+        // Quét toàn bộ sản phẩm trong allList (allList đã được tải ở hàm loadAllProducts)
+        for (Product p : allList) {
+            if (p.getName() != null && p.getName().toLowerCase().contains(lowerCaseKeyword)) {
+                searchList.add(p); // Nếu tên có chứa từ khóa thì nhét vào danh sách tìm kiếm
+            }
+        }
+
+        // Báo cho Adapter biết để vẽ lại màn hình
+        searchAdapter.notifyDataSetChanged();
     }
 }

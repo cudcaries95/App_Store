@@ -1,6 +1,7 @@
 package com.example.app_store.Adapter;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -48,78 +49,94 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
     public void onBindViewHolder(@NonNull OrderViewHolder holder, int position) {
         Order order = orderList.get(position);
 
-        // Cắt bớt ID cho đỡ dài (Ví dụ: ID là 8Xj2n... thì mình lấy 8 ký tự đầu thôi cho đẹp)
-        String shortId = order.getOrderId().length() > 8 ? order.getOrderId().substring(0, 8) : order.getOrderId();
-
+        // 1. FORMAT MÃ ĐƠN
+        String shortId = order.getOrderId() != null && order.getOrderId().length() > 8
+                ? order.getOrderId().substring(0, 8)
+                : order.getOrderId();
         holder.tvOrderId.setText("Mã đơn: #" + shortId.toUpperCase());
-        holder.tvOrderDate.setText("Ngày đặt: " + order.getOrderDate()); // Gọi biến ngày thực tế
 
-        holder.tvTotal.setText("Tổng: " + order.getTotalAmount());
-        holder.tvStatus.setText("Trạng thái: " + order.getStatus());
+        // 2. HIỂN THỊ NGÀY ĐẶT
+        Date date = order.getOrderDate(); // Lấy biến Date đã khớp với Firestore
 
-        // 2. PHÂN LOẠI HIỂN THỊ
+        if (date != null) {
+            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault());
+            holder.tvOrderDate.setText("Ngày đặt: " + sdf.format(date));
+        } else {
+            holder.tvOrderDate.setText("Ngày đặt: Không xác định");
+        }
+
+        // 3. THÔNG TIN CƠ BẢN CỦA ĐƠN HÀNG (Tổng tiền, Trạng thái, Phương thức thanh toán)
+        holder.tvTotal.setText("Tổng: " + order.getTotalAmount() + " đ");
+
+        // Hiển thị phương thức thanh toán (Bạn nhớ kiểm tra xem trong file XML đã có tvPaymentMethod chưa nhé)
+        String paymentMethod = order.getPaymentMethod() != null ? order.getPaymentMethod() : "COD";
+        if (holder.tvPaymentMethod != null) {
+            holder.tvPaymentMethod.setText("Thanh toán: " + paymentMethod);
+        }
+
+        // Đổi màu text theo trạng thái để dễ nhìn hơn
+        String status = order.getStatus();
+        holder.tvStatus.setText("Trạng thái: " + status);
+        if ("PENDING".equalsIgnoreCase(status) || "Chờ xử lý".equalsIgnoreCase(status)) {
+            holder.tvStatus.setTextColor(Color.parseColor("#FFC107")); // Màu vàng
+        } else if ("Đã hủy".equalsIgnoreCase(status)) {
+            holder.tvStatus.setTextColor(Color.parseColor("#F44336")); // Màu đỏ
+        } else if ("Giao thành công".equalsIgnoreCase(status)) {
+            holder.tvStatus.setTextColor(Color.parseColor("#4CAF50")); // Màu xanh lá
+        } else {
+            holder.tvStatus.setTextColor(Color.parseColor("#2196F3")); // Xanh dương (Đang giao, v.v.)
+        }
+
+        // 4. PHÂN LOẠI HIỂN THỊ THEO QUYỀN (ADMIN vs KHÁCH HÀNG)
         if (isAdmin) {
-            // NẾU LÀ ADMIN: Hiện toàn bộ Tên, SĐT, Địa chỉ và Nút Cập nhật
+            // ADMIN: Hiện chi tiết giao hàng & Nút Cập nhật
             holder.tvName.setVisibility(View.VISIBLE);
             holder.tvPhone.setVisibility(View.VISIBLE);
             holder.tvAddress.setVisibility(View.VISIBLE);
             holder.btnUpdate.setVisibility(View.VISIBLE);
             holder.btnCancelOrder.setVisibility(View.GONE);
 
+            // Đảm bảo gọi đúng hàm Getter theo Model Order của bạn
             holder.tvName.setText("Khách hàng: " + order.getCustomerName());
-            holder.tvPhone.setText("SĐT: " + order.getCustomerPhone());
-            holder.tvAddress.setText("Địa chỉ: " + order.getDeliveryAddress());
+            holder.tvPhone.setText("SĐT: " + order.getPhone()); // Đổi thành getCustomerPhone() nếu class của bạn dùng tên đó
+            holder.tvAddress.setText("Địa chỉ: " + order.getAddress()); // Đổi thành getDeliveryAddress() nếu cần
 
             holder.btnUpdate.setOnClickListener(v -> {
                 if (listener != null) listener.onUpdateClick(order);
             });
+
         } else {
-            // NẾU LÀ KHÁCH HÀNG: Giấu tịt Tên, SĐT, Địa chỉ và Nút Cập nhật đi cho gọn
+            // KHÁCH HÀNG: Giấu chi tiết giao hàng & Nút Cập nhật
             holder.tvName.setVisibility(View.GONE);
             holder.tvPhone.setVisibility(View.GONE);
             holder.tvAddress.setVisibility(View.GONE);
             holder.btnUpdate.setVisibility(View.GONE);
-            try {
 
-                Date orderDate = order.getOrderDate(); // Lấy trực tiếp Date, không cần parse!
-                Date currentDate = new Date();
-                if (orderDate != null) {
-                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
-                    String formattedDate = sdf.format(orderDate);
-                    holder.tvOrderDate.setText("Ngày đặt: " + formattedDate);
-                    long diffInMillies = Math.abs(currentDate.getTime() - orderDate.getTime());
-                    long diffInHours = diffInMillies / (60 * 60 * 1000); // Đổi sang giờ
+            // Logic tính thời gian 24h để hiện nút Hủy
+            if (!isAdmin && date != null) {
+                long diffInMillies = Math.abs(System.currentTimeMillis() - date.getTime());
+                long diffInHours = diffInMillies / (60 * 60 * 1000);
 
-                    // Chỉ HIỆN khi: (Chưa quá 24h) VÀ (Trạng thái khác "Đã hủy") VÀ (Trạng thái khác "Giao thành công")
-                    if (diffInHours < 24
-                            && !"Đã hủy".equalsIgnoreCase(order.getStatus())
-                            && !"Giao thành công".equalsIgnoreCase(order.getStatus())) {
-
-                        holder.btnCancelOrder.setVisibility(View.VISIBLE);
-                    } else {
-                        // Tất cả các trường hợp còn lại (Quá 24h, Đã hủy, Giao thành công) -> ẨN LUÔN
-                        holder.tvOrderDate.setText("Ngày đặt: Đang cập nhật");
-                        holder.btnCancelOrder.setVisibility(View.GONE);
-                    }
+                if (diffInHours < 24
+                        && !"Đã hủy".equalsIgnoreCase(order.getStatus())
+                        && !"Giao thành công".equalsIgnoreCase(order.getStatus())) {
+                    holder.btnCancelOrder.setVisibility(View.VISIBLE);
+                } else {
+                    holder.btnCancelOrder.setVisibility(View.GONE);
                 }
-            } catch (Exception e) {
-                holder.btnCancelOrder.setVisibility(View.GONE);
             }
 
-            // 3. Xử lý khi bấm nút Hủy
-            holder.btnCancelOrder.setOnClickListener(v -> {
-                confirmCancelOrder(order.getOrderId(), position);
-            });
+            holder.btnCancelOrder.setOnClickListener(v -> confirmCancelOrder(order.getOrderId(), position));
         }
     }
 
     @Override
     public int getItemCount() {
-        return orderList.size();
+        return orderList != null ? orderList.size() : 0;
     }
 
     public static class OrderViewHolder extends RecyclerView.ViewHolder {
-        TextView tvName, tvPhone, tvAddress, tvTotal, tvStatus, tvOrderId, tvOrderDate;
+        TextView tvName, tvPhone, tvAddress, tvTotal, tvStatus, tvOrderId, tvOrderDate, tvPaymentMethod;
         Button btnUpdate, btnCancelOrder;
 
         public OrderViewHolder(@NonNull View itemView) {
@@ -131,31 +148,51 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
             tvAddress = itemView.findViewById(R.id.tvAdminOrderAddress);
             tvTotal = itemView.findViewById(R.id.tvAdminOrderTotal);
             tvStatus = itemView.findViewById(R.id.tvAdminOrderStatus);
+
+            // TODO: Bạn cần thêm 1 TextView vào file item_order_admin.xml và ánh xạ ID vào đây
+            tvPaymentMethod = itemView.findViewById(R.id.tvPaymentMethod);
+
             btnUpdate = itemView.findViewById(R.id.btnUpdateStatus);
             btnCancelOrder = itemView.findViewById(R.id.btnCancelOrder);
         }
     }
 
-    private void confirmCancelOrder(String orderId, int position) {
+    private void confirmCancelOrder(String orderId,final int position) {
+        // Tạo một EditText để người dùng nhập lý do
+        final android.widget.EditText edtReason = new android.widget.EditText(context);
+        edtReason.setHint("Nhập lý do hủy...");
+
+        // Tạo khoảng cách (margin) cho EditText để nhìn đẹp hơn
+        android.widget.FrameLayout container = new android.widget.FrameLayout(context);
+        android.widget.FrameLayout.LayoutParams params = new  android.widget.FrameLayout.LayoutParams(
+                android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+                android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+        params.leftMargin = 50; // Khoảng cách lề trái
+        params.rightMargin = 50; // Khoảng cách lề phải
+        edtReason.setLayoutParams(params);
+        container.addView(edtReason);
+
         new android.app.AlertDialog.Builder(context)
                 .setTitle("Xác nhận hủy")
-                .setMessage("Bạn có chắc chắn muốn hủy đơn hàng này?")
-                .setPositiveButton("Hủy đơn", (dialog, which) -> {
+                .setView(container)
+                .setPositiveButton("Xác nhận", (dialog, which) -> {
+                    final String reason = edtReason.getText().toString().trim(); // Thêm final ở đây
+
+                    String finalReason = reason.isEmpty() ? "Khách hàng không lý do" : reason;
+
+                    java.util.Map<String, Object> updates = new java.util.HashMap<>();
+                    updates.put("status", "Đã hủy");
+                    updates.put("cancelReason", finalReason);
 
                     FirebaseFirestore.getInstance().collection("Orders").document(orderId)
-                            .update("status", "Đã hủy")
+                            .update(updates)
                             .addOnSuccessListener(aVoid -> {
-                                Toast.makeText(context, "Đã hủy đơn hàng!", Toast.LENGTH_SHORT).show();
-
-                                // BƯỚC QUAN TRỌNG: Cập nhật lại status trong list dữ liệu tại máy
+                                // Bây giờ dùng position ở đây sẽ không báo đỏ nữa
                                 orderList.get(position).setStatus("Đã hủy");
-
-                                // Lệnh này sẽ bắt hàm onBindViewHolder chạy lại cho dòng này
-                                // Lúc này diffInHours < 24 vẫn đúng nhưng status đã là "Đã hủy" nên nút sẽ bị GONE
+                                orderList.get(position).setCancelReason(finalReason);
                                 notifyItemChanged(position);
                             });
                 })
-                .setNegativeButton("Đóng", null)
                 .show();
     }
 }

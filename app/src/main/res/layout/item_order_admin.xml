@@ -3,113 +3,141 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="8dp"
-    app:cardCornerRadius="16dp"
-    app:cardElevation="2dp"
-    app:cardBackgroundColor="@color/colorSurface">
+    android:layout_marginHorizontal="12dp"
+    android:layout_marginVertical="6dp"
+    app:cardCornerRadius="10dp"
+    app:cardElevation="3dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:padding="16dp"
+        android:background="#FFFFFF">
 
-        <TextView
-            android:id="@+id/tvOrderId"
+        <!-- Header: Mã đơn và Ngày đặt -->
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Mã đơn: #..."
-            android:textColor="@color/colorTextPrimary"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:layout_marginBottom="4dp"/>
+            android:layout_height="wrap_content">
 
-        <TextView
-            android:id="@+id/tvOrderDate"
+            <TextView
+                android:id="@+id/tvOrderId"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Mã đơn: #12345678"
+                android:textColor="#212121"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvOrderDate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/tvOrderId"
+                android:layout_marginTop="2dp"
+                android:text="Ngày đặt: 01/01/2026 12:00:00"
+                android:textColor="#757575"
+                android:textSize="13sp" />
+        </RelativeLayout>
+
+        <View
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Ngày đặt: ..."
-            android:textColor="@color/colorTextSecondary"
-            android:textSize="14sp"
-            android:layout_marginBottom="12dp"/>
+            android:layout_height="1dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            android:background="#E0E0E0" />
 
+        <!-- Phần thông tin khách hàng (Dành cho Admin) -->
         <TextView
             android:id="@+id/tvAdminOrderName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Tên khách hàng"
-            android:textColor="@color/colorTextPrimary"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:layout_marginBottom="4dp"/>
+            android:text="Khách hàng: Đỗ Chiếm Cự"
+            android:textColor="#424242"
+            android:textSize="14sp"
+            android:visibility="gone"/>
 
         <TextView
             android:id="@+id/tvAdminOrderPhone"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="SĐT: 0123456789"
-            android:textColor="@color/colorTextSecondary"
-            android:layout_marginBottom="4dp"/>
+            android:layout_marginTop="4dp"
+            android:text="SĐT: 090xxxxxxx"
+            android:textColor="#424242"
+            android:textSize="14sp"
+            android:visibility="gone"/>
 
         <TextView
             android:id="@+id/tvAdminOrderAddress"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Địa chỉ: ..."
-            android:textColor="@color/colorTextSecondary"
-            android:layout_marginBottom="8dp"/>
+            android:layout_marginTop="4dp"
+            android:text="Địa chỉ: Phường Hoài Nhơn"
+            android:textColor="#424242"
+            android:textSize="14sp"
+            android:visibility="gone"/>
 
-        <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#EEEEEE" android:layout_marginBottom="8dp"/>
+        <!-- Phần thông tin Thanh toán và Trạng thái -->
+        <TextView
+            android:id="@+id/tvAdminOrderTotal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Tổng: 500,000 đ"
+            android:textColor="#E53935"
+            android:textSize="15sp"
+            android:textStyle="bold" />
 
+        <!-- TEXTVIEW PHƯƠNG THỨC THANH TOÁN MỚI -->
+        <TextView
+            android:id="@+id/tvPaymentMethod"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="Thanh toán: COD"
+            android:textColor="#1E88E5"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tvAdminOrderStatus"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="Trạng thái: PENDING"
+            android:textColor="#FFB300"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+
+        <!-- Phần Nút thao tác -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:gravity="center_vertical">
+            android:gravity="end"
+            android:layout_marginTop="12dp">
 
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_weight="1"
+            <!-- Nút Hủy (Dành cho Khách hàng) -->
+            <Button
+                android:id="@+id/btnCancelOrder"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:layout_marginEnd="8dp"
+                android:backgroundTint="#E53935"
+                android:text="Hủy Đơn"
+                android:textColor="#FFFFFF"
+                android:visibility="gone" />
 
-                <TextView
-                    android:id="@+id/tvAdminOrderTotal"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Tổng: 500.000 đ"
-                    android:textColor="@color/colorPrimary"
-                    android:textStyle="bold"
-                    android:textSize="16sp"/>
-
-                <TextView
-                    android:id="@+id/tvAdminOrderStatus"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Đang xử lý"
-                    android:textColor="#E53935"
-                    android:textStyle="italic"
-                    android:layout_marginTop="4dp"/>
-            </LinearLayout>
-
+            <!-- Nút Cập nhật (Dành cho Admin) -->
             <Button
                 android:id="@+id/btnUpdateStatus"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="CẬP NHẬT"
-                android:textColor="@color/colorSurface"
-                android:textStyle="bold"
-                android:background="@drawable/bg_button"
-                app:backgroundTint="@null" />
+                android:backgroundTint="#43A047"
+                android:text="Cập Nhật"
+                android:textColor="#FFFFFF"
+                android:visibility="gone" />
         </LinearLayout>
-        <Button
-            android:id="@+id/btnCancelOrder"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Hủy đơn hàng"
-            android:layout_gravity="center"
-            android:backgroundTint="#F44336"
-            android:textColor="#FFFFFF"
-            android:visibility="gone"/>
+
     </LinearLayout>
 </androidx.cardview.widget.CardView>
