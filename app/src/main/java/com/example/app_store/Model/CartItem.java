@@ -1,6 +1,8 @@
 package com.example.app_store.Model;
 
-public class CartItem {
+import java.io.Serializable;
+
+public class CartItem implements Serializable {
     private String documentId; // ID của document trên Firestore (để sau này làm chức năng xóa)
     private String productId;
     private String productName;

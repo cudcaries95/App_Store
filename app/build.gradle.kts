@@ -5,16 +5,12 @@ plugins {
 
 android {
     namespace = "com.example.app_store"
-    compileSdk {
-        version = release(36) {
-            minorApiLevel = 1
-        }
-    }
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.example.app_store"
         minSdk = 24
-        targetSdk = 36
+        targetSdk = 34
         versionCode = 1
         versionName = "1.0"
 
@@ -46,16 +42,11 @@ dependencies {
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
 
-    // Thêm Firebase BOM để nó tự động quản lý phiên bản cho tất cả các dịch vụ Firebase
     implementation(platform("com.google.firebase:firebase-bom:33.0.0"))
-
-    // Thư viện Cloud Firestore
     implementation("com.google.firebase:firebase-firestore")
     implementation("com.google.firebase:firebase-analytics")
-
-    // Kho chứa file ảnh của Firebase
     implementation("com.google.firebase:firebase-storage")
-
-    // Thư viện Glide để tải ảnh
     implementation("com.github.bumptech.glide:glide:4.16.0")
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    implementation ("com.google.code.gson:gson:2.10.1")
 }
