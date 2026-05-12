@@ -77,8 +77,15 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
         // Đổi màu text theo trạng thái để dễ nhìn hơn
         String status = order.getStatus();
         holder.tvStatus.setText("Trạng thái: " + status);
-        if ("PENDING".equalsIgnoreCase(status) || "Chờ xử lý".equalsIgnoreCase(status)) {
-            holder.tvStatus.setTextColor(Color.parseColor("#FFC107")); // Màu vàng
+        if (order.getStatus().equals("PAID")) {
+            holder.tvStatus.setTextColor(Color.GREEN);
+            holder.tvStatus.setText("Đã thanh toán (MoMo)");
+        } else if (order.getStatus().equals("PLACED")) {
+            holder.tvStatus.setTextColor(Color.BLUE);
+            holder.tvStatus.setText("Chờ giao hàng (COD)");
+        } else if (order.getStatus().equals("PENDING_MOMO")) {
+            holder.tvStatus.setTextColor(Color.parseColor("#FFA500")); // Orange
+            holder.tvStatus.setText("Chờ thanh toán MoMo");
         } else if ("Đã hủy".equalsIgnoreCase(status)) {
             holder.tvStatus.setTextColor(Color.parseColor("#F44336")); // Màu đỏ
         } else if ("Giao thành công".equalsIgnoreCase(status)) {

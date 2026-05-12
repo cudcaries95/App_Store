@@ -20,10 +20,14 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.App_Store">
         <activity
+            android:name=".AddAddressActivity"
+            android:exported="false" />
+        <activity
             android:name=".PaymentResultActivity"
             android:exported="true">
             <intent-filter android:label="Momo Payment Result">
                 <action android:name="android.intent.action.VIEW" />
+
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
 

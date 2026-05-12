@@ -77,6 +77,7 @@ public class CartActivity extends AppCompatActivity {
 
             // 2. Chuyển sang CheckoutActivity và mang theo dữ liệu
             Intent intent = new Intent(CartActivity.this, CheckoutActivity.class);
+            intent.putExtra("USER_ID", auth.getCurrentUser().getUid()); // Chỉ cần gửi UID
 
             // Truyền tổng tiền (String: "1.500.000 đ")
             intent.putExtra("TOTAL_PRICE", tvTotalPrice.getText().toString());
@@ -116,13 +117,17 @@ public class CartActivity extends AppCompatActivity {
         if (auth.getCurrentUser() == null) return;
         String currentUserId = auth.getCurrentUser().getUid();
 
+        // Sử dụng addSnapshotListener thay vì get() để cập nhật thời gian thực
         db.collection("Cart").document(currentUserId).collection("Items")
-                .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        cartItemList.clear();
+                .addSnapshotListener((value, error) -> {
+                    if (error != null) {
+                        Toast.makeText(this, "Lỗi tải dữ liệu!", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
 
-                        for (DocumentSnapshot doc : task.getResult()) {
+                    if (value != null) {
+                        cartItemList.clear();
+                        for (DocumentSnapshot doc : value.getDocuments()) {
                             String docId = doc.getId();
                             String productId = doc.getString("productId");
                             String name = doc.getString("productName");
@@ -134,8 +139,15 @@ public class CartActivity extends AppCompatActivity {
                             cartItemList.add(new CartItem(docId, productId, name, priceStr, imageUrl, quantity));
                         }
 
+                        // Cập nhật Adapter và tính lại tiền
                         cartAdapter.notifyDataSetChanged();
-                        calculateTotalPrice(); // Gọi hàm tính tiền lần đầu tiên
+                        calculateTotalPrice();
+
+                        // Nếu giỏ hàng trống sau khi thanh toán, có thể thông báo hoặc đóng màn hình
+                        if (cartItemList.isEmpty()) {
+                            // tvTotalPrice.setText("0 đ"); // Đảm bảo tiền về 0
+                            // Bạn có thể hiện một thông báo nhỏ ở đây nếu muốn
+                        }
                     }
                 });
     }

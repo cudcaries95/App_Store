@@ -1,6 +1,7 @@
 package com.example.app_store;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -48,50 +49,34 @@ public class OrderHistoryActivity extends AppCompatActivity {
 
     private void loadOrderHistory() {
         FirebaseAuth auth = FirebaseAuth.getInstance();
-        if (auth.getCurrentUser() == null) {
-            Toast.makeText(this, "Vui lòng đăng nhập!", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        String currentUserId = auth.getCurrentUser().getUid();
+        if (auth.getCurrentUser() == null) return;
 
+        String currentUserId = auth.getCurrentUser().getUid();
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-        // CHÚ Ý: Lọc theo userId và Sắp xếp theo biến lưu thời gian (kiểu long)
-        // Nếu trong Firestore bạn lưu tên trường là "orderDate" (kiểu số long) thì giữ nguyên "orderDate"
-        // Nếu bạn lưu là "timestamp" thì đổi lại thành "timestamp" cho khớp nhé.
+        // Sử dụng SnapshotListener để cập nhật trạng thái đơn hàng (PAID/FAILED) ngay lập tức
         db.collection("Orders")
                 .whereEqualTo("userId", currentUserId)
                 .orderBy("orderDate", Query.Direction.DESCENDING)
                 .addSnapshotListener((value, error) -> {
-                    // 1. Kiểm tra lỗi mất kết nối hoặc thiếu quyền (Rules)
                     if (error != null) {
-                        Toast.makeText(this, "Không thể tải lịch sử: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                        // LƯU Ý: Nếu Logcat báo lỗi "The query requires an index",
+                        // hãy nhấn vào đường link màu xanh trong Logcat để Firebase tự tạo Index cho bạn.
+                        Log.e("FirestoreError", "Lỗi: " + error.getMessage());
                         return;
                     }
 
-                    // 2. Cập nhật dữ liệu Realtime
                     if (value != null) {
-                        orderList.clear(); // Xóa list cũ trước khi đổ list mới vào
-
+                        orderList.clear();
                         for (DocumentSnapshot doc : value.getDocuments()) {
-                            // 1. Tự động map các trường bên trong Document
                             Order order = doc.toObject(Order.class);
-
                             if (order != null) {
-                                // 2. SỬA LỖI CRASH Ở ĐÂY: Lấy ID của Document (CaJ6f...) gán thủ công vào orderId
+                                // Gán document ID để dùng cho các thao tác xem chi tiết/hủy đơn sau này
                                 order.setOrderId(doc.getId());
-
-                                // 3. Thêm vào danh sách
                                 orderList.add(order);
                             }
                         }
-
-                        // Cập nhật lại giao diện ngay lập tức
                         orderAdapter.notifyDataSetChanged();
-
-                        if (orderList.isEmpty()) {
-                            Toast.makeText(this, "Bạn chưa có đơn hàng nào.", Toast.LENGTH_SHORT).show();
-                        }
                     }
                 });
     }

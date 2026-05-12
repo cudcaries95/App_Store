@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:layout_margin="8dp"
+    android:background="@drawable/bg_edittext"
+    android:elevation="2dp">
+
+    <!-- Lưu ý: Bạn có thể tạo file bg_address_item.xml trong thư mục drawable
+         để bo góc hoặc tạo viền cho đẹp mắt -->
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/tvItemName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Tên người nhận"
+            android:textStyle="bold"
+            android:textSize="16sp"
+            android:textColor="#333333" />
+
+        <View
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:background="#CCCCCC"/>
+
+        <TextView
+            android:id="@+id/tvItemPhone"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Số điện thoại"
+            android:textColor="#666666" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tvItemAddress"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Địa chỉ chi tiết"
+        android:textColor="#444444" />
+
+    <!-- Nhãn hiển thị nếu đây là địa chỉ mặc định -->
+    <TextView
+        android:id="@+id/tvItemDefaultBadge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="[Mặc định]"
+        android:textColor="#FF5722"
+        android:textStyle="italic"
+        android:visibility="gone" /> <!-- Mặc định ẩn, chỉ hiện khi isDefault = true -->
+
+</LinearLayout>
