@@ -42,7 +42,15 @@ public class ManageProductsActivity extends AppCompatActivity {
         adapter = new AdminProductAdapter(this, productList, new AdminProductAdapter.OnAdminProductListener() {
             @Override
             public void onDeleteClick(Product product, int position) {
-                deleteProduct(product.getId(), position);
+                new android.app.AlertDialog.Builder(ManageProductsActivity.this)
+                        .setTitle("Xác nhận xóa")
+                        .setMessage("Bạn có chắc chắn muốn xóa sản phẩm \"" + product.getName() + "\" không?")
+                        .setPositiveButton("Xóa", (dialog, which) -> {
+                            // Nếu Admin bấm "Xóa", mới tiến hành gọi hàm xóa dữ liệu trên Firebase
+                            deleteProduct(product.getId(), position);
+                        })
+                        .setNegativeButton("Hủy", null) // Bấm "Hủy" thì đóng Dialog, không làm gì cả
+                        .show();
             }
 
             @Override

@@ -197,6 +197,10 @@ public class CheckoutActivity extends AppCompatActivity {
                         // Nếu chọn COD -> Thành công luôn
                         clearUserCart();
                         Toast.makeText(this, "Đặt hàng thành công (COD)!", Toast.LENGTH_LONG).show();
+
+                        Intent intent = new Intent(CheckoutActivity.this, MainActivity.class);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                        startActivity(intent);
                         finish();
                     }
                 })
@@ -376,7 +380,10 @@ public class CheckoutActivity extends AppCompatActivity {
                     if (status.equals("PAID")) {
                         clearUserCart();
                         Toast.makeText(this, "Thanh toán thành công!", Toast.LENGTH_LONG).show();
-                        // Chuyển về màn hình chính hoặc lịch sử đơn hàng
+                        // Chuyển về màn hình chính
+                        Intent intent = new Intent(CheckoutActivity.this, MainActivity.class);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                        startActivity(intent);
                         finish();
                     }
                 });

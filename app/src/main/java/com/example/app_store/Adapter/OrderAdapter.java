@@ -100,8 +100,14 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
             holder.tvName.setVisibility(View.VISIBLE);
             holder.tvPhone.setVisibility(View.VISIBLE);
             holder.tvAddress.setVisibility(View.VISIBLE);
-            holder.btnUpdate.setVisibility(View.VISIBLE);
             holder.btnCancelOrder.setVisibility(View.GONE);
+
+            String currentStatus = order.getStatus();
+            if ("Đã hủy".equalsIgnoreCase(currentStatus) || "Giao thành công".equalsIgnoreCase(currentStatus)) {
+                holder.btnUpdate.setVisibility(View.GONE); // Ẩn nút cập nhật
+            } else {
+                holder.btnUpdate.setVisibility(View.VISIBLE); // Hiện nút cập nhật cho các trạng thái khác (Chờ duyệt, đang giao...)
+            }
 
             // Đảm bảo gọi đúng hàm Getter theo Model Order của bạn
             holder.tvName.setText("Khách hàng: " + order.getCustomerName());

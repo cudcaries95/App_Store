@@ -218,12 +218,21 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(MainActivity.this, "Mở Quản lý Đơn hàng", Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(MainActivity.this, ManageOrdersActivity.class);
                     intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+
+                    // SỬA: PHẢI THÊM DÒNG NÀY ĐỂ BÁO CHO ACTIVITY BIẾT ĐÂY LÀ ADMIN
+                    intent.putExtra("IS_ADMIN", true);
+
                     startActivity(intent);
                     drawerLayout.closeDrawer(GravityCompat.START);
 
                 } else if (id == R.id.nav_logout) {
-                    // Đăng xuất Firebase và quay về màn hình Login
+                    // Đăng xuất Firebase
                     FirebaseAuth.getInstance().signOut();
+
+                    // Hiện thông báo Toast
+                    Toast.makeText(MainActivity.this, "Đã đăng xuất thành công!", Toast.LENGTH_SHORT).show();
+
+                    // Quay về màn hình Login
                     Intent intent = new Intent(MainActivity.this, LoginActivity.class);
                     intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                     startActivity(intent);
@@ -320,7 +329,7 @@ public class MainActivity extends AppCompatActivity {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
         // 1. KÉO TÊN HIỂN THỊ
-        db.collection("Users").document(userId).addSnapshotListener(this, (documentSnapshot, error) -> {
+        db.collection("Users").document(userId).addSnapshotListener((documentSnapshot, error) -> {
             if (error != null) {
                 android.util.Log.e("NAV_ERROR", "Lỗi tải dữ liệu real-time", error);
                 return;
@@ -351,11 +360,13 @@ public class MainActivity extends AppCompatActivity {
                     byte[] decodedString = Base64.decode(base64Image, Base64.NO_WRAP);
 
                     // Đổ vào ImageView bằng Glide
-                    Glide.with(this)
+                    Glide.with(MainActivity.this)
                             .asBitmap()
                             .load(decodedString)
-                            .placeholder(R.drawable.ic_person) // Ảnh hiện trong lúc chờ
-                            .error(R.drawable.ic_error)            // Ảnh hiện nếu lỗi
+                            .skipMemoryCache(true) // Bỏ qua bộ nhớ đệm RAM
+                            .diskCacheStrategy(com.bumptech.glide.load.engine.DiskCacheStrategy.NONE) // Bỏ qua bộ nhớ đệm bộ nhớ trong
+                            .placeholder(R.drawable.ic_person)
+                            .error(R.drawable.ic_error)
                             .circleCrop()
                             .into(imgNavAvatar);
                 }

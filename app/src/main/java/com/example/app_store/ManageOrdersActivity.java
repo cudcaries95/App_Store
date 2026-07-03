@@ -3,6 +3,7 @@ package com.example.app_store;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -37,6 +38,9 @@ public class ManageOrdersActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_manage_orders);
 
+        ImageView btnBackAdminOrders = findViewById(R.id.btnBackAdminOrders);
+        btnBackAdminOrders.setOnClickListener(v -> finish());
+
         rcvOrders = findViewById(R.id.rvAdminOrders);
         db = FirebaseFirestore.getInstance();
         mAuth = FirebaseAuth.getInstance();
@@ -56,9 +60,25 @@ public class ManageOrdersActivity extends AppCompatActivity {
         orderAdapter = new OrderAdapter(this, orderList, isAdmin, new OrderAdapter.OnOrderUpdateListener() {
             @Override
             public void onUpdateClick(Order order) {
-                // Chỉ Admin mới gọi được hàm này (Do nút Cập nhật chỉ hiện với Admin)
-                // TODO: Mở Dialog hoặc Activity để Admin chọn đổi trạng thái (VD: PENDING -> SHIPPING)
-                Toast.makeText(ManageOrdersActivity.this, "Đang cập nhật đơn: " + order.getOrderId(), Toast.LENGTH_SHORT).show();
+                // Tạo danh sách các trạng thái để Admin chọn
+                String[] statuses = {"Chờ giao hàng (COD)", "Đang giao hàng", "Giao thành công", "Đã hủy"};
+
+                new android.app.AlertDialog.Builder(ManageOrdersActivity.this)
+                        .setTitle("Cập nhật trạng thái đơn hàng")
+                        .setItems(statuses, (dialog, which) -> {
+                            String selectedStatus = statuses[which];
+
+                            // Cập nhật trạng thái lên Firestore
+                            db.collection("Orders").document(order.getOrderId())
+                                    .update("status", selectedStatus)
+                                    .addOnSuccessListener(aVoid -> {
+                                        Toast.makeText(ManageOrdersActivity.this, "Đã cập nhật thành: " + selectedStatus, Toast.LENGTH_SHORT).show();
+                                        // Lưu ý: List giao diện sẽ tự động cập nhật nhờ addSnapshotListener trong hàm loadOrdersFromFirestore
+                                    })
+                                    .addOnFailureListener(e -> Toast.makeText(ManageOrdersActivity.this, "Lỗi: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                        })
+                        .setNegativeButton("Đóng", null)
+                        .show();
             }
         });
 
@@ -67,13 +87,13 @@ public class ManageOrdersActivity extends AppCompatActivity {
 
     private void loadOrdersFromFirestore() {
         // Luôn sắp xếp đơn hàng theo ngày đặt (mới nhất xếp trên cùng)
-        // Lưu ý: Trường ngày đặt trong Firestore của bạn phải lưu đúng tên là "orderDate"
         Query query = db.collection("Orders").orderBy("orderDate", Query.Direction.DESCENDING);
 
         if (!isAdmin) {
             // NẾU LÀ KHÁCH HÀNG: Chỉ lấy những đơn hàng có userId trùng với UID hiện tại
             if (mAuth.getCurrentUser() != null) {
                 String currentUserId = mAuth.getCurrentUser().getUid();
+                // Sửa lại đoạn code bị gãy khúc
                 query = db.collection("Orders")
                         .whereEqualTo("userId", currentUserId)
                         .orderBy("orderDate", Query.Direction.DESCENDING);
@@ -84,23 +104,32 @@ public class ManageOrdersActivity extends AppCompatActivity {
         }
 
         // Thực thi truy vấn
-        query.get().addOnSuccessListener(queryDocumentSnapshots -> {
-            orderList.clear();
-            for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
-                // Tự động map dữ liệu từ Firestore vào class Order
-                Order order = document.toObject(Order.class);
-                orderList.add(order);
+        query.addSnapshotListener(ManageOrdersActivity.this, (value, error) -> {
+            if (error != null) {
+                Toast.makeText(ManageOrdersActivity.this, "Lỗi tải dữ liệu: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                return;
             }
 
-            // Cập nhật giao diện sau khi có dữ liệu
-            orderAdapter.notifyDataSetChanged();
+            if (value != null) {
+                orderList.clear(); // Xóa list cũ
 
-            if (orderList.isEmpty()) {
-                Toast.makeText(this, "Chưa có đơn hàng nào.", Toast.LENGTH_SHORT).show();
+                for (com.google.firebase.firestore.DocumentSnapshot document : value.getDocuments()) {
+                    // Tự động map dữ liệu từ Firestore vào class Order
+                    Order order = document.toObject(Order.class);
+
+                    if (order != null) {
+                        order.setOrderId(document.getId());
+                        orderList.add(order);
+                    }
+                }
+
+                // Cập nhật giao diện sau khi có dữ liệu mới
+                orderAdapter.notifyDataSetChanged();
+
+                if (orderList.isEmpty()) {
+                    Toast.makeText(ManageOrdersActivity.this, "Chưa có đơn hàng nào.", Toast.LENGTH_SHORT).show();
+                }
             }
-
-        }).addOnFailureListener(e -> {
-            Toast.makeText(this, "Lỗi tải dữ liệu: " + e.getMessage(), Toast.LENGTH_SHORT).show();
         });
     }
 }

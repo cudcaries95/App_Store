@@ -87,26 +87,22 @@ public class CartActivity extends AppCompatActivity {
 
             startActivity(intent);
         });
+    }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        // Chuyển việc tải dữ liệu vào onStart để giỏ hàng LUÔN LÀM MỚI mỗi khi màn hình hiển thị lại
         loadCartData();
     }
 
     // Hàm xóa sản phẩm khỏi Firebase
     private void deleteCartItem(CartItem item, int position) {
         String currentUserId = auth.getCurrentUser().getUid();
-
         db.collection("Cart").document(currentUserId).collection("Items")
                 .document(item.getDocumentId()) // Tìm đúng ID của món hàng trên Firebase
                 .delete()
                 .addOnSuccessListener(aVoid -> {
-                    // Xóa thành công trên mạng -> Xóa luôn khỏi danh sách hiển thị
-                    cartItemList.remove(position);
-                    cartAdapter.notifyItemRemoved(position);
-                    cartAdapter.notifyItemRangeChanged(position, cartItemList.size());
-
-                    // Tính lại tổng tiền
-                    calculateTotalPrice();
-
                     Toast.makeText(CartActivity.this, "Đã xóa sản phẩm", Toast.LENGTH_SHORT).show();
                 })
                 .addOnFailureListener(e -> Toast.makeText(CartActivity.this, "Lỗi khi xóa!", Toast.LENGTH_SHORT).show());
@@ -119,8 +115,10 @@ public class CartActivity extends AppCompatActivity {
 
         // Sử dụng addSnapshotListener thay vì get() để cập nhật thời gian thực
         db.collection("Cart").document(currentUserId).collection("Items")
-                .addSnapshotListener((value, error) -> {
+                .addSnapshotListener(CartActivity.this, (value, error) -> {
+
                     if (error != null) {
+                        if (auth.getCurrentUser() == null) return;
                         Toast.makeText(this, "Lỗi tải dữ liệu!", Toast.LENGTH_SHORT).show();
                         return;
                     }

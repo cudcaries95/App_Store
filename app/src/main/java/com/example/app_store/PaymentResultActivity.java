@@ -78,7 +78,7 @@ public class PaymentResultActivity extends AppCompatActivity {
     private void updateOrderStatus(String orderId, String status) {
         // Cập nhật trạng thái đơn hàng trên Firestore
         db.collection("Orders").document(orderId)
-                .update("orderStatus", status)
+                .update("status", status)
                 .addOnSuccessListener(aVoid -> {
                     if (status.equals("PAID")) {
                         clearUserCart(); // Xóa giỏ hàng nếu thanh toán thành công
