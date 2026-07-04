@@ -114,6 +114,29 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
             holder.tvPhone.setText("SĐT: " + order.getPhone()); // Đổi thành getCustomerPhone() nếu class của bạn dùng tên đó
             holder.tvAddress.setText("Địa chỉ: " + order.getAddress()); // Đổi thành getDeliveryAddress() nếu cần
 
+            // TÍNH NĂNG MỚI: GỌI ĐIỆN NHANH CHO KHÁCH HÀNG
+            // 1. Làm nổi bật số điện thoại (Màu xanh và gạch chân giống một đường link)
+            holder.tvPhone.setTextColor(android.graphics.Color.parseColor("#1976D2"));
+            holder.tvPhone.setPaintFlags(holder.tvPhone.getPaintFlags() | android.graphics.Paint.UNDERLINE_TEXT_FLAG);
+
+            // 2. Bắt sự kiện chạm vào số điện thoại để mở bàn phím gọi
+            holder.tvPhone.setOnClickListener(v -> {
+                String phoneNum = order.getPhone();
+                if (phoneNum != null && !phoneNum.trim().isEmpty()) {
+                    try {
+                        // Thử mở ứng dụng gọi điện
+                        android.content.Intent callIntent = new android.content.Intent(android.content.Intent.ACTION_DIAL);
+                        callIntent.setData(android.net.Uri.parse("tel:" + phoneNum.trim()));
+                        context.startActivity(callIntent);
+                    } catch (android.content.ActivityNotFoundException e) {
+                        // Bắt lỗi nếu thiết bị (giả lập) không có ứng dụng gọi điện
+                        Toast.makeText(context, "Thiết bị này không hỗ trợ tính năng gọi điện!", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    Toast.makeText(context, "Đơn hàng này không có số điện thoại hợp lệ!", Toast.LENGTH_SHORT).show();
+                }
+            });
+
             holder.btnUpdate.setOnClickListener(v -> {
                 if (listener != null) listener.onUpdateClick(order);
             });

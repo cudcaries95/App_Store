@@ -20,6 +20,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.App_Store">
         <activity
+            android:name=".ChatActivity"
+            android:exported="false" />
+        <activity
             android:name=".AddAddressActivity"
             android:exported="false" />
         <activity

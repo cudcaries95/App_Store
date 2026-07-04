@@ -101,6 +101,14 @@ public class MainActivity extends AppCompatActivity {
         navMenu.findItem(R.id.nav_admin_statistics).setVisible(false);
         navMenu.findItem(R.id.nav_admin_statistics).setVisible(false);
 
+        com.google.android.material.floatingactionbutton.FloatingActionButton fabChat = findViewById(R.id.fabChat);
+
+        fabChat.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, ChatActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+            startActivity(intent);
+        });
+
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser != null) {
             String currentUserId = currentUser.getUid();
